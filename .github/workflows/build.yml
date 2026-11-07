@@ -1,0 +1,83 @@
+name: Build IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Xcode version
+        run: xcodebuild -version
+
+      - name: Build app (unsigned)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project QZ01.xcodeproj \
+            -scheme QZ01 \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee build.log
+
+      - name: Package IPA
+        run: |
+          rm -rf Payload
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/QZ01.app Payload/
+          zip -qry QZ01.ipa Payload
+          ls -la QZ01.ipa
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="v1.0.${{ github.run_number }}"
+          gh release create "$TAG" QZ01.ipa \
+            --title "枪战01 $TAG" \
+            --notes "点下面的 QZ01.ipa 下载，然后用万能签签名安装。"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QZ01-ipa
+          path: QZ01.ipa
+
+      - name: Save build log to ci-logs branch
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/ci"
+          if [ -f build.log ]; then
+            grep -nE "error:|fatal error|\*\* BUILD|Undefined symbol|linker command failed" build.log > "$RUNNER_TEMP/ci/errors.txt" || true
+            grep -nE -B2 -A6 "error:" build.log | head -n 1500 > "$RUNNER_TEMP/ci/error_context.txt" || true
+            tail -n 120 build.log > "$RUNNER_TEMP/ci/tail.txt" || true
+          else
+            echo "no build.log" > "$RUNNER_TEMP/ci/errors.txt"
+          fi
+          echo "${{ job.status }} run=${{ github.run_number }} sha=${{ github.sha }}" > "$RUNNER_TEMP/ci/status.txt"
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@users.noreply.github.com"
+          git checkout --orphan ci-logs-tmp
+          git rm -rf --cached . -q || true
+          cp "$RUNNER_TEMP"/ci/*.txt .
+          git add -f errors.txt error_context.txt tail.txt status.txt 2>/dev/null || git add -f errors.txt tail.txt status.txt
+          git commit -q -m "CI log run ${{ github.run_number }}"
+          git push -f origin HEAD:ci-logs
