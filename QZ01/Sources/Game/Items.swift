@@ -206,14 +206,19 @@ enum LootTable {
         let t = Float(tier)
         if r < 0.30 + t * 0.05 {
             // weapon + ammo
-            let w: WeaponType
             let x = rng.f()
+            let table: [(Float, WeaponType)]
             if tier >= 3 {
-                w = x < 0.35 ? .m416 : (x < 0.62 ? .akm : (x < 0.85 ? .kar98k : (x < 0.93 ? .s12k : .uzi)))
+                table = [(0.35, .m416), (0.62, .akm), (0.85, .kar98k), (0.93, .s12k), (1.01, .uzi)]
             } else if tier == 2 {
-                w = x < 0.28 ? .m416 : (x < 0.5 ? .akm : (x < 0.66 ? .uzi : (x < 0.78 ? .s12k : (x < 0.88 ? .kar98k : .p92))))
+                table = [(0.28, .m416), (0.50, .akm), (0.66, .uzi), (0.78, .s12k), (0.88, .kar98k), (1.01, .p92)]
             } else {
-                w = x < 0.18 ? .m416 : (x < 0.34 ? .akm : (x < 0.56 ? .uzi : (x < 0.72 ? .s12k : (x < 0.78 ? .kar98k : .p92))))
+                table = [(0.18, .m416), (0.34, .akm), (0.56, .uzi), (0.72, .s12k), (0.78, .kar98k), (1.01, .p92)]
+            }
+            var w: WeaponType = .p92
+            for e in table where x < e.0 {
+                w = e.1
+                break
             }
             out.append((.weapon(w), 1))
             let a = WeaponStats.of(w).ammo
@@ -234,7 +239,8 @@ enum LootTable {
             else { out.append((.med(.drink), 1)) }
         } else if r < 0.93 {
             let s = rng.f()
-            let st: ScopeType = s < 0.35 ? .redDot : (s < 0.65 ? .x2 : (s < 0.9 ? .x4 : .x8))
+            var st: ScopeType = .x8
+            if s < 0.35 { st = .redDot } else if s < 0.65 { st = .x2 } else if s < 0.9 { st = .x4 }
             out.append((.scope(st), 1))
         } else {
             let tt: ThrowType = rng.chance(0.65) ? .frag : .smoke

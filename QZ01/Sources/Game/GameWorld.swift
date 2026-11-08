@@ -443,7 +443,10 @@ final class GameWorld {
         grassT += dt
         if grassT > 0.15 {
             grassT = 0
-            data.grass.update(camera: cameraNode.simdPosition)
+            let cp = cameraNode.simdPosition
+            if cp.y - terrain.height(cp.x, cp.z) < 120 {
+                data.grass.update(camera: cp)
+            }
         }
         lodT += dt
         if lodT > 0.2 {
