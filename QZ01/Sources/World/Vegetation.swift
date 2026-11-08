@@ -211,8 +211,12 @@ final class GrassField {
         queue.removeAll { !wanted.contains(key($0.0, $0.1)) }
         // sort queue by distance, build a few per frame
         queue.sort { a, b in
-            let da = pow((Float(a.0) + 0.5) * chunk - camera.x, 2) + pow((Float(a.1) + 0.5) * chunk - camera.z, 2)
-            let db = pow((Float(b.0) + 0.5) * chunk - camera.x, 2) + pow((Float(b.1) + 0.5) * chunk - camera.z, 2)
+            let ax: Float = (Float(a.0) + 0.5) * self.chunk - camera.x
+            let az: Float = (Float(a.1) + 0.5) * self.chunk - camera.z
+            let bx: Float = (Float(b.0) + 0.5) * self.chunk - camera.x
+            let bz: Float = (Float(b.1) + 0.5) * self.chunk - camera.z
+            let da: Float = ax * ax + az * az
+            let db: Float = bx * bx + bz * bz
             return da < db
         }
         var built = 0
@@ -236,7 +240,9 @@ final class GrassField {
         var rng = RNG(hash2(i, j, 991))
         let mb = MeshBuilder()
         let x0 = Float(i) * chunk, z0 = Float(j) * chunk
-        let center = V3(x0 + chunk / 2, terrain.height(x0 + chunk / 2, z0 + chunk / 2), z0 + chunk / 2)
+        let cxm: Float = x0 + chunk / 2
+        let czm: Float = z0 + chunk / 2
+        let center = V3(cxm, terrain.height(cxm, czm), czm)
         let count = Int(Float(520) * density)
         let nearBlockers = blockers.filter { b in
             b.1.x > x0 - 2 && b.0.x < x0 + chunk + 2 && b.1.y > z0 - 2 && b.0.y < z0 + chunk + 2

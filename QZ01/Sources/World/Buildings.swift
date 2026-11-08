@@ -298,9 +298,13 @@ enum Buildings {
         let spots: [(Float, Float)] = [(-7, -4), (-6.5, 3.5), (6, -4), (7, 3), (0, -3)]
         for sp in spots {
             let s: Float = rng.r(1.0, 1.4)
-            c.box(sp.0 - s / 2, f, sp.1 - s / 2, sp.0 + s / 2, f + s, sp.1 + s / 2, .crate, kind: .wood, lod: false)
+            let hs: Float = s / 2
+            let x0: Float = sp.0 - hs, x1: Float = sp.0 + hs
+            let z0: Float = sp.1 - hs, z1: Float = sp.1 + hs
+            c.box(x0, f, z0, x1, f + s, z1, .crate, kind: .wood, lod: false)
             if rng.chance(0.5) {
-                c.box(sp.0 - s / 2 + 0.1, f + s, sp.1 - s / 2 + 0.1, sp.0 + s / 2 - 0.1, f + 2 * s - 0.2, sp.1 + s / 2 - 0.1, .crate, kind: .wood, lod: false)
+                let top: Float = f + 2 * s - 0.2
+                c.box(x0 + 0.1, f + s, z0 + 0.1, x1 - 0.1, top, z1 - 0.1, .crate, kind: .wood, lod: false)
             }
         }
         c.lootAt(-4, f, -1)

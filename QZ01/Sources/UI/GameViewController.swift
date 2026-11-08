@@ -163,6 +163,8 @@ final class GameViewController: UIViewController {
 
     private func attach(world w: GameWorld) {
         world = w
+        let ts = view.traitCollection.displayScale
+        let screenScale: CGFloat = ts > 0 ? ts : 3.0
         let l = GameLoop(world: w)
         loop = l
         scnView.scene = w.scene
@@ -171,13 +173,13 @@ final class GameViewController: UIViewController {
         switch settings.quality {
         case 2:
             scnView.antialiasingMode = .multisampling4X
-            scnView.contentScaleFactor = UIScreen.main.scale
+            scnView.contentScaleFactor = min(screenScale, 3.0)
         case 1:
             scnView.antialiasingMode = .multisampling2X
-            scnView.contentScaleFactor = min(UIScreen.main.scale, 2.0)
+            scnView.contentScaleFactor = min(screenScale, 2.0)
         default:
             scnView.antialiasingMode = .none
-            scnView.contentScaleFactor = min(UIScreen.main.scale, 1.6)
+            scnView.contentScaleFactor = min(screenScale, 1.6)
         }
         scnView.preferredFramesPerSecond = 60
         scnView.rendersContinuously = true

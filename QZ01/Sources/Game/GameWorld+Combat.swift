@@ -382,7 +382,8 @@ extension GameWorld {
         guard let v = a.vehicle else { return }
         v.driver = nil
         a.vehicle = nil
-        var p = v.pos + flatRight(v.yaw) * (v.halfW + 0.9) * (v.isBike ? 1 : -1)
+        let side: Float = (v.halfW + 0.9) * (v.isBike ? 1 : -1)
+        var p: V3 = v.pos + flatRight(v.yaw) * side
         p.y = col.ground(p.x, p.z, feetY: v.pos.y + 1.5, step: 2.0)
         col.pushOut(&p, radius: 0.35, height: 1.8, stepUp: 0.5)
         a.pos = p

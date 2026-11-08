@@ -38,18 +38,20 @@ extension GameWorld {
         }
     }
 
-    func lootNear(_ p: V3, radius: Float) -> [LootItem] {
+    func lootNear(_ p: V3, radius: Float, dy: Float = 2.2) -> [LootItem] {
         var out: [LootItem] = []
-        let i0 = Int((p.x - radius + 800) / 16), i1 = Int((p.x + radius + 800) / 16)
-        let j0 = Int((p.z - radius + 800) / 16), j1 = Int((p.z + radius + 800) / 16)
+        let i0 = max(0, Int(((p.x - radius + 800) / 16).rounded(.down)))
+        let i1 = min(99, Int(((p.x + radius + 800) / 16).rounded(.down)))
+        let j0 = max(0, Int(((p.z - radius + 800) / 16).rounded(.down)))
+        let j1 = min(99, Int(((p.z + radius + 800) / 16).rounded(.down)))
         if i0 > i1 || j0 > j1 { return out }
-        for j in max(0, j0)...min(99, max(0, j1)) {
-            for i in max(0, i0)...min(99, max(0, i1)) {
+        for j in j0...j1 {
+            for i in i0...i1 {
                 guard let ids = lootGrid[j * 100 + i] else { continue }
                 for id in ids {
                     if let it = loot[id], !it.taken {
                         let d = distXZ(it.pos, p)
-                        if d <= radius && abs(it.pos.y - p.y) < 2.2 { out.append(it) }
+                        if d <= radius && abs(it.pos.y - p.y) < dy { out.append(it) }
                     }
                 }
             }
@@ -103,7 +105,7 @@ extension GameWorld {
 
     func updateLootVisibility() {
         let c = cameraNode.simdPosition
-        let near = lootNear(V3(c.x, c.y, c.z), radius: 70).filter { abs($0.pos.y - c.y) < 60 }
+        let near = lootNear(c, radius: 70, dy: 60)
         var want = Set<Int>()
         for it in near where it.crateId < 0 {
             want.insert(it.id)
@@ -148,9 +150,9 @@ extension GameWorld {
                     if !explicit { return }
                     s = (a.slot == 0 || a.slot == 1) ? a.slot : 0
                     if let old = inv.primary[s] {
-                        if old.scope != .none {
+                        if old.scope != .iron {
                             inv.scopes[old.scope.rawValue] += 1
-                            old.scope = .none
+                            old.scope = .iron
                         }
                         addLoot(.weapon(old.type), 1, a.pos + V3(0, 0.02, 0), weapon: old)
                     }
@@ -242,7 +244,7 @@ extension GameWorld {
             addLoot(.weapon(w.type), 1, p, weapon: w)
             inv.pistol = nil
         } else if slot == 0 || slot == 1, let w = inv.primary[slot] {
-            if w.scope != .none { inv.scopes[w.scope.rawValue] += 1; w.scope = .none }
+            if w.scope != .iron { inv.scopes[w.scope.rawValue] += 1; w.scope = .iron }
             addLoot(.weapon(w.type), 1, p, weapon: w)
             inv.primary[slot] = nil
         }

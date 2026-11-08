@@ -46,17 +46,19 @@ final class BotBrain {
 
     func chooseDrop(world: GameWorld) {
         var r = RNG(UInt64(skill * 100000) &+ world.rng.next())
-        let spots = world.data.loot
+        // land just outside a doorway (never on a roof), so the bot can walk in and loot
+        var spots: [V3] = world.data.doors.map { $0.outside }
+        if spots.isEmpty { spots = world.data.loot.map { $0.p } }
         let plan = world.plan
         var best = V2(0, 0)
         for _ in 0..<12 {
-            let s = spots.isEmpty ? V3(r.r(-500, 500), 0, r.r(-500, 500)) : spots[r.i(spots.count)].p
+            let s: V3 = spots.isEmpty ? V3(r.r(-500, 500), 0, r.r(-500, 500)) : spots[r.i(spots.count)]
             let p = V2(s.x, s.z)
             // prefer spots within ~600 m of the flight path
             let t = plan.closestTime(to: p)
             let onPath = plan.pos(at: t)
             if simd_length(V2(onPath.x, onPath.z) - p) < 600 || r.chance(0.15) {
-                best = p + r.inDisc(12)
+                best = p + r.inDisc(2.5)
                 break
             }
             best = p
@@ -69,6 +71,15 @@ final class BotBrain {
     }
 
     // MARK: helpers
+
+    static func chestHeight(_ c: Actor) -> Float {
+        if c.state == .vehicle { return 1.0 }
+        switch c.stance {
+        case .prone: return 0.3
+        case .crouch: return 0.88
+        case .stand: return 1.28
+        }
+    }
 
     func effectiveRange(_ w: WeaponInst?) -> Float {
         guard let w = w else { return 2 }
@@ -152,8 +163,14 @@ final class BotBrain {
         let f = flatForward(a.yaw)
         var found: Actor?
         var checks = 0
-        let cands = w.actors.filter { $0.alive && $0.id != a.id && ($0.state == .ground || $0.state == .vehicle) && vlen($0.pos - a.pos) < sight }
-            .sorted { vlen($0.pos - a.pos) < vlen($1.pos - a.pos) }
+        var cands: [Actor] = []
+        for o in w.actors {
+            if !o.alive || o.id == a.id { continue }
+            if o.state != .ground && o.state != .vehicle { continue }
+            if vlen(o.pos - a.pos) >= sight { continue }
+            cands.append(o)
+        }
+        cands.sort { vlen($0.pos - a.pos) < vlen($1.pos - a.pos) }
         for c in cands {
             if checks >= 3 { break }
             let d = c.pos - a.pos
@@ -164,7 +181,7 @@ final class BotBrain {
             if c.stance == .prone && dist > 45 + skill * 60 && !recentlyShot { continue }
             if c.stance == .crouch && dist > 140 + skill * 80 && !recentlyShot { continue }
             checks += 1
-            let aimPt = c.pos + V3(0, c.stance == .prone ? 0.3 : (c.stance == .crouch ? 0.9 : 1.3), 0)
+            let aimPt: V3 = c.pos + V3(0, BotBrain.chestHeight(c), 0)
             if w.col.lineClear(a.eye, aimPt, now: w.now) {
                 found = c
                 break
@@ -291,7 +308,7 @@ final class BotBrain {
         switch task {
         case .fight:
             guard let t = target else { break }
-            let tp = t.pos + V3(0, t.stance == .prone ? 0.3 : (t.stance == .crouch ? 0.85 : 1.25), 0)
+            let tp: V3 = t.pos + V3(0, BotBrain.chestHeight(t), 0)
             let lead = t.vel * (vlen(tp - a.eye) / 600) * skill
             let aimAt = (visibleNow ? tp : lastSeenPos + V3(0, 1.2, 0)) + lead
             let dir = vnorm(aimAt - a.eye)
@@ -436,7 +453,7 @@ final class BotBrain {
 
     func farUpdate(_ a: Actor, _ w: GameWorld, _ dt: Float) {
         farAcc += dt
-        if farAcc < 0.5 { return }
+        if farAcc < 0.25 { return }
         let step = farAcc
         farAcc = 0
         thinkT -= step

@@ -16,6 +16,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Unpack uploaded source (if any)
+        run: |
+          if [ -f source.zip ]; then unzip -o -q source.zip; fi
+          ls -la
+
       - name: Install XcodeGen
         run: brew install xcodegen
 

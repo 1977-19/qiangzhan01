@@ -24,10 +24,10 @@ enum WeaponType: Int, CaseIterable {
 }
 
 enum ScopeType: Int, CaseIterable {
-    case none = 0, redDot, x2, x4, x8
+    case iron = 0, redDot, x2, x4, x8
     var name: String {
         switch self {
-        case .none: return "机瞄"
+        case .iron: return "机瞄"
         case .redDot: return "红点瞄准镜"
         case .x2: return "2倍镜"
         case .x4: return "4倍镜"
@@ -37,7 +37,7 @@ enum ScopeType: Int, CaseIterable {
     /// Vertical field of view (degrees) when aiming
     var aimFov: Float {
         switch self {
-        case .none: return 40
+        case .iron: return 40
         case .redDot: return 38
         case .x2: return 23
         case .x4: return 11.5
@@ -122,7 +122,7 @@ final class WeaponInst {
     var auto: Bool
     var stats: WeaponStats { return WeaponStats.of(type) }
 
-    init(_ type: WeaponType, mag: Int? = nil, scope: ScopeType = .none) {
+    init(_ type: WeaponType, mag: Int? = nil, scope: ScopeType = .iron) {
         self.type = type
         let st = WeaponStats.of(type)
         self.mag = mag ?? 0
@@ -345,9 +345,9 @@ final class Inventory {
                 break
             }
             if bestIdx > 0 {
-                if w.scope != .none { scopes[w.scope.rawValue] += 1 }
+                if w.scope != .iron { scopes[w.scope.rawValue] += 1 }
                 scopes[bestIdx] -= 1
-                w.scope = ScopeType(rawValue: bestIdx) ?? .none
+                w.scope = ScopeType(rawValue: bestIdx) ?? .iron
             }
         }
     }
@@ -360,7 +360,7 @@ final class Inventory {
         for a in AmmoType.allCases where ammo[a.rawValue] > 0 { out.append((.ammo(a), ammo[a.rawValue], nil)) }
         for m in MedType.allCases where meds[m.rawValue] > 0 { out.append((.med(m), meds[m.rawValue], nil)) }
         for t in ThrowType.allCases where throws[t.rawValue] > 0 { out.append((.throwable(t), throws[t.rawValue], nil)) }
-        for s in ScopeType.allCases where s != .none && scopes[s.rawValue] > 0 { out.append((.scope(s), scopes[s.rawValue], nil)) }
+        for s in ScopeType.allCases where s != .iron && scopes[s.rawValue] > 0 { out.append((.scope(s), scopes[s.rawValue], nil)) }
         if helmet > 0 { out.append((.helmet(helmet), 1, nil)) }
         if vest > 0 { out.append((.vest(vest), 1, nil)) }
         if bag > 0 { out.append((.bag(bag), 1, nil)) }

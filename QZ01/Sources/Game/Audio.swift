@@ -82,7 +82,9 @@ final class AudioSys {
             let noise = rng.r(-1, 1)
             lpS += (noise - lpS) * lp
             let c = lpS * crack * exp(-t / crackDecay)
-            let th = sin(2 * kPi * thumpHz * t * (1 - t * 0.8)) * thump * exp(-t / 0.07)
+            let ph: Float = kTwoPi * thumpHz * t * (1 - t * 0.8)
+            let env1: Float = exp(-t / 0.07)
+            let th: Float = sin(ph) * thump * env1
             tailLp += (noise - tailLp) * 0.05
             let tl = tailLp * tail * exp(-t / tailDecay) * min(1, t * 40)
             out[i] = c + th + tl
@@ -134,14 +136,18 @@ final class AudioSys {
         var hit = [Float](repeating: 0, count: Int(sr * 0.08))
         for i in 0..<hit.count {
             let t = Float(i) / Float(sr)
-            hit[i] = sin(2 * kPi * 2200 * t) * exp(-t / 0.015) * 0.6
+            let ph: Float = kTwoPi * 2200 * t
+            let en: Float = exp(-t / 0.015)
+            hit[i] = sin(ph) * en * 0.6
         }
         buffers["hit"] = makeBuffer(hit)
         // explosion
         var ex = noiseBurst(seed: 10, dur: 2.2, decay: 0.5, lp: 0.06, amp: 1)
         for i in 0..<ex.count {
             let t = Float(i) / Float(sr)
-            ex[i] += sin(2 * kPi * 38 * t) * exp(-t / 0.35) * 0.9
+            let ph: Float = kTwoPi * 38 * t
+            let en: Float = exp(-t / 0.35)
+            ex[i] += sin(ph) * en * 0.9
         }
         normalize(&ex, 0.95)
         buffers["explosion"] = makeBuffer(ex)
@@ -161,8 +167,12 @@ final class AudioSys {
             let t = Float(i) / Float(sr)
             let f: Float = 46
             var v: Float = 0
-            for h in 1...6 { v += sin(2 * kPi * f * Float(h) * t) / Float(h) }
-            eng[i] = v * (0.8 + 0.2 * sin(2 * kPi * 8 * t))
+            for h in 1...6 {
+                let hf: Float = Float(h)
+                v += sin(kTwoPi * f * hf * t) / hf
+            }
+            let wob: Float = 0.8 + 0.2 * sin(kTwoPi * 8 * t)
+            eng[i] = v * wob
         }
         normalize(&eng, 0.7)
         buffers["engine"] = makeBuffer(eng)
@@ -171,14 +181,18 @@ final class AudioSys {
         for i in 0..<pl.count {
             let t = Float(i) / Float(sr)
             s += (rng.r(-1, 1) - s) * 0.05
-            pl[i] = sin(2 * kPi * 82 * t) * 0.5 + sin(2 * kPi * 164 * t) * 0.2 + s * 0.6
+            let p1: Float = sin(kTwoPi * 82 * t) * 0.5
+            let p2: Float = sin(kTwoPi * 164 * t) * 0.2
+            pl[i] = p1 + p2 + s * 0.6
         }
         normalize(&pl, 0.8)
         buffers["plane"] = makeBuffer(pl)
         var pick = [Float](repeating: 0, count: Int(sr * 0.12))
         for i in 0..<pick.count {
             let t = Float(i) / Float(sr)
-            pick[i] = sin(2 * kPi * (600 + 900 * t * 8) * t) * exp(-t / 0.04) * 0.5
+            let fr: Float = 600 + 7200 * t
+            let en: Float = exp(-t / 0.04)
+            pick[i] = sin(kTwoPi * fr * t) * en * 0.5
         }
         buffers["pickup"] = makeBuffer(pick)
         buffers["heal"] = makeBuffer(noiseBurst(seed: 12, dur: 0.6, decay: 0.25, lp: 0.2, amp: 0.4))

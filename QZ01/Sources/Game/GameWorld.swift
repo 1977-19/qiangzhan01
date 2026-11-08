@@ -78,7 +78,7 @@ struct HUDState {
     var fireAuto = true
     var canAuto = false
     var aiming = false
-    var scope: ScopeType = .none
+    var scope: ScopeType = .iron
     var scoped = false
     var reloadProgress: Float = -1
     var healProgress: Float = -1

@@ -213,7 +213,7 @@ extension GameWorld {
             camPos = cp
             fov = baseFov + min(10, (p.vehicle?.speed ?? 0) * 0.3)
         case .ground, .dead:
-            let scope = p.weapon?.scope ?? .none
+            let scope = p.weapon?.scope ?? .iron
             let magnified = scope.magnified && aimBlend > 0.6 && p.state == .ground
             if magnified || fpp {
                 camPos = p.eye + aimDir * 0.12
@@ -234,7 +234,7 @@ extension GameWorld {
                 cp.y = max(cp.y, terrain.height(cp.x, cp.z) + 0.25)
                 if p.inWater { cp.y = max(cp.y, terrain.waterLevel + 0.3) }
                 camPos = cp
-                fov = lerpf(baseFov, scope == .none ? 44 : scope.aimFov + 4, aimBlend)
+                fov = lerpf(baseFov, scope == .iron ? 44 : scope.aimFov + 4, aimBlend)
             }
         }
         // shake & recoil
@@ -259,7 +259,7 @@ extension GameWorld {
                 viewGun.geometry = Models.gun(w.type, scope: w.scope, assets: assets)
             }
             let hip = V3(0.17, -0.19, -0.42)
-            let sightY: Float = w.scope == .none ? -0.09 : (w.scope == .redDot ? -0.13 : -0.14)
+            let sightY: Float = w.scope == .iron ? -0.09 : (w.scope == .redDot ? -0.13 : -0.14)
             let ads = V3(0, sightY, -0.3)
             var vp = lerp3(hip, ads, aimBlend)
             vp.z += viewKick * 0.06
@@ -327,7 +327,7 @@ extension GameWorld {
                 s.name = w.stats.name
                 s.mag = w.mag
                 s.reserve = p.inv.ammo[w.stats.ammo.rawValue]
-                s.scope = w.scope == .none ? "" : w.scope.name
+                s.scope = w.scope == .iron ? "" : w.scope.name
             }
             h.slots[i] = s
         }
@@ -340,7 +340,7 @@ extension GameWorld {
             h.scope = w.scope
         } else {
             h.canAuto = false
-            h.scope = .none
+            h.scope = .iron
         }
         h.aiming = p.aiming
         if p.reloading, let w = p.weapon {

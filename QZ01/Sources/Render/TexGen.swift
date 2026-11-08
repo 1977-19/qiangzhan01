@@ -248,7 +248,9 @@ enum TexGen {
             for x in 0..<n {
                 let fx = Float(x) / 128, fy = Float(y) / 128
                 let a = noise.fbm(fx, fy, oct: 5, period: 4) * 0.5 + 0.5
-                let rip = sin(Float(y) * 0.09 + noise.fbm(fx * 2, fy * 2, oct: 2, period: 8) * 6) * 0.5 + 0.5
+                let ripN: Float = noise.fbm(fx * 2, fy * 2, oct: 2, period: 8)
+                let ripA: Float = Float(y) * 0.09 + ripN * 6
+                let rip: Float = sin(ripA) * 0.5 + 0.5
                 let k1: Float = 0.94 + 0.08 * a
                 let k2: Float = 0.02 * rip
                 let c: V3 = V3(0.84, 0.87, 0.93) * k1 + V3(k2, k2, k2 * 1.5)
@@ -496,7 +498,11 @@ enum TexGen {
                 let p = x / plankPx
                 let lx = x % plankPx
                 let rnd = Float(hash2(p, 7, seed) % 1000) / 1000
-                let grain = sin((Float(x) * 0.6 + noise.fbm(Float(x) / 64, Float(y) / 16 + Float(p) * 3, oct: 3, period: 32) * 8)) * 0.5 + 0.5
+                let gx: Float = Float(x) / 64
+                let gy: Float = Float(y) / 16 + Float(p) * 3
+                let gN: Float = noise.fbm(gx, gy, oct: 3, period: 32)
+                let gA: Float = Float(x) * 0.6 + gN * 8
+                let grain: Float = sin(gA) * 0.5 + 0.5
                 let a = noise.fbm(Float(x) / 64, Float(y) / 64, oct: 3, period: 8) * 0.5 + 0.5
                 let k1: Float = (0.75 + 0.35 * rnd) * (0.85 + 0.2 * grain)
                 let k2: Float = 0.9 + 0.15 * a
@@ -588,7 +594,9 @@ enum TexGen {
             for x in 0..<n {
                 let border = x < 20 || x > n - 21 || y < 20 || y > n - 21
                 let diag = abs(x - y) < 12 && !border
-                let grain = sin(Float(y) * 0.5 + noise.fbm(Float(x) / 16, Float(y) / 64, oct: 3, period: 16) * 6) * 0.5 + 0.5
+                let gN: Float = noise.fbm(Float(x) / 16, Float(y) / 64, oct: 3, period: 16)
+                let gA: Float = Float(y) * 0.5 + gN * 6
+                let grain: Float = sin(gA) * 0.5 + 0.5
                 let k1: Float = 0.8 + 0.25 * grain
                 var c: V3 = V3(0.55, 0.42, 0.25) * k1
                 if border || diag { c *= 0.78 }
@@ -690,7 +698,9 @@ enum TexGen {
             return V3(0.17, 0.17, 0.17) * (0.9 + 0.15 * a)
         }
         fillRect(img, GunUV.wood) { _, _, x, y in
-            let g = sin(Float(y) * 0.8 + noise.fbm(Float(x) / 32, Float(y) / 8, oct: 3) * 5) * 0.5 + 0.5
+            let gN: Float = noise.fbm(Float(x) / 32, Float(y) / 8, oct: 3)
+            let gA: Float = Float(y) * 0.8 + gN * 5
+            let g: Float = sin(gA) * 0.5 + 0.5
             return V3(0.42, 0.24, 0.12) * (0.75 + 0.35 * g)
         }
         fillRect(img, GunUV.tan) { _, _, x, y in

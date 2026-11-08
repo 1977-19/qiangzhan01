@@ -78,7 +78,9 @@ final class Terrain {
     // MARK: generation
 
     func riverX(_ z: Float) -> Float {
-        return 70 * sin(z * 0.0042 + 0.6) + 35 * sin(z * 0.011 + 1.3) - 20
+        let a: Float = 70 * sin(z * 0.0042 + 0.6)
+        let b: Float = 35 * sin(z * 0.011 + 1.3)
+        return a + b - 20
     }
 
     func generate(noise: Noise) {
@@ -111,7 +113,10 @@ final class Terrain {
                     let mountains = smoothstepf(0.62, 1.0, edge + noise.fbm(x * 0.003, z * 0.003, oct: 3) * 0.12)
                     let hills = noise.fbm(x * 0.0026 + 40, z * 0.0026 + 9, oct: 6) * 0.5 + 0.5
                     let ridge = noise.ridged(x * 0.002 + 3, z * 0.002 + 17, oct: 6)
-                    var hh = 16 + pow(hills, 1.5) * 34 + ridge * ridge * 26 + mountains * (110 + ridge * 70)
+                    let hBase: Float = 16 + pow(hills, 1.5) * 34
+                    let hRidge: Float = ridge * ridge * 26
+                    let hMount: Float = mountains * (110 + ridge * 70)
+                    var hh: Float = hBase + hRidge + hMount
                     hh += noise.fbm(x * 0.025, z * 0.025, oct: 3) * 1.0
                     let dr = abs(x - riverX(z))
                     let carve = smoothstepf(70, 20, dr)

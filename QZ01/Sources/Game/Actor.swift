@@ -210,7 +210,7 @@ final class Vehicle {
         node.simdPosition = pos
         node.simdOrientation = orientation()
         for w in wheels { w.simdEulerAngles = V3(spin, 0, 0) }
-        for f in frontWheels { f.simdEulerAngles = V3(0, steer * 0.5, 0) }
+        for f in frontWheels { f.simdEulerAngles = V3(0, -steer * 0.5, 0) }
     }
 
     func groundAt(_ p: V3, col: CollisionWorld) -> Float {
@@ -239,7 +239,9 @@ final class Vehicle {
 
         // collisions with world
         var impact: Float = 0
-        var probe = pos + f * (halfL * 0.65) * (speed >= 0 ? 1 : -1)
+        let dirSign: Float = speed >= 0 ? 1 : -1
+        let probeOff: V3 = f * (halfL * 0.65 * dirSign)
+        var probe: V3 = pos + probeOff
         let before = probe
         col.pushOut(&probe, radius: halfW, height: 1.4, stepUp: 0.7)
         var center = pos
@@ -262,7 +264,8 @@ final class Vehicle {
         let hl = groundAt(pos - r * halfW, col: col), hr = groundAt(pos + r * halfW, col: col)
         let target = (hf + hb + hl + hr) * 0.25
         let tp = atan2(hf - hb, fl * 2)
-        let tr = isBike ? -steer * min(1, abs(speed) / 12) * 0.45 : atan2(hl - hr, halfW * 2)
+        let bikeLean: Float = -steer * min(1, abs(speed) / 12) * 0.45
+        let tr: Float = isBike ? bikeLean : atan2(hr - hl, halfW * 2)
         if pos.y > target + 0.25 {
             vy -= 9.8 * dt
             pos.y += vy * dt

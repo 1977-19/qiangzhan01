@@ -13,7 +13,7 @@ enum Models {
         let g = Mt.gun.rawValue
         let met = GunUV.metal
         switch s {
-        case .none:
+        case .iron:
             break
         case .redDot:
             mb.box(g, min: V3(-0.015, y, z - 0.025), max: V3(0.015, y + 0.015, z + 0.025), uv: met)
@@ -54,7 +54,7 @@ enum Models {
             mb.box(g, min: V3(-0.016, -0.1, -0.022), max: V3(0.016, 0, 0.022), m: mTranslate(V3(0, -0.04, 0.05)) * mRotX(-0.3), uv: pol)
             mb.box(g, min: V3(-0.022, -0.035, 0.14), max: V3(0.022, 0.055, 0.36), uv: pol)
             mb.box(g, min: V3(-0.014, 0.07, -0.48), max: V3(0.014, 0.085, 0.12), uv: met)
-            if scope == .none {
+            if scope == .iron {
                 mb.box(g, min: V3(-0.004, 0.066, -0.47), max: V3(0.004, 0.115, -0.455), uv: met)
                 mb.box(g, min: V3(-0.012, 0.085, 0.08), max: V3(0.012, 0.115, 0.1), uv: met)
             }
@@ -71,7 +71,7 @@ enum Models {
             mb.box(g, min: V3(-0.016, -0.1, -0.022), max: V3(0.016, 0, 0.022), m: mTranslate(V3(0, -0.01, 0.07)) * mRotX(-0.3), uv: wood)
             mb.box(g, min: V3(-0.022, -0.07, 0.0), max: V3(0.022, 0.04, 0.3), m: mTranslate(V3(0, 0.02, 0.14)) * mRotX(0.12), uv: wood)
             mb.box(g, min: V3(-0.014, 0.065, -0.12), max: V3(0.014, 0.08, 0.1), uv: met)
-            if scope == .none {
+            if scope == .iron {
                 mb.box(g, min: V3(-0.004, 0.02, -0.75), max: V3(0.004, 0.075, -0.735), uv: met)
             }
             addScope(mb, scope, z: -0.0, y: 0.08)
@@ -82,7 +82,7 @@ enum Models {
             mb.box(g, min: V3(-0.006, 0.0, 0.1), max: V3(0.006, 0.015, 0.3), uv: met)
             mb.box(g, min: V3(-0.025, -0.06, 0.28), max: V3(0.025, 0.015, 0.3), uv: met)
             mb.box(g, min: V3(-0.012, 0.07, -0.14), max: V3(0.012, 0.082, 0.06), uv: met)
-            addScope(mb, scope == .none ? .none : (scope.rawValue > 2 ? .x2 : scope), z: -0.04, y: 0.082)
+            addScope(mb, scope == .iron ? .iron : (scope.rawValue > 2 ? .x2 : scope), z: -0.04, y: 0.082)
         case .kar98k:
             mb.box(g, min: V3(-0.03, -0.04, -0.6), max: V3(0.03, 0.04, 0.0), uv: wood)
             mb.box(g, min: V3(-0.03, -0.12, 0.0), max: V3(0.03, 0.045, 0.42), m: mRotX(-0.08), uv: wood)
@@ -91,7 +91,7 @@ enum Models {
             mb.tube(g, from: V3(0.018, 0.065, 0.04), to: V3(0.07, 0.045, 0.05), r0: 0.006, r1: 0.006, seg: 6, uv: met)
             mb.sphere(g, radius: V3(0.012, 0.012, 0.012), m: mTranslate(V3(0.075, 0.044, 0.05)), rings: 4, segs: 6, uv: met)
             mb.box(g, min: V3(-0.012, -0.06, -0.02), max: V3(0.012, -0.03, 0.06), uv: met)
-            if scope == .none {
+            if scope == .iron {
                 mb.box(g, min: V3(-0.004, 0.05, -0.96), max: V3(0.004, 0.08, -0.945), uv: met)
             }
             addScope(mb, scope, z: -0.05, y: 0.075)
@@ -103,14 +103,15 @@ enum Models {
             mb.box(g, min: V3(-0.016, -0.1, -0.022), max: V3(0.016, 0, 0.022), m: mTranslate(V3(0, -0.015, 0.07)) * mRotX(-0.3), uv: pol)
             mb.box(g, min: V3(-0.023, -0.07, 0.0), max: V3(0.023, 0.05, 0.28), m: mTranslate(V3(0, 0.02, 0.15)) * mRotX(0.1), uv: tan)
             mb.box(g, min: V3(-0.014, 0.07, -0.14), max: V3(0.014, 0.084, 0.1), uv: met)
-            addScope(mb, scope == .none ? .none : (scope.rawValue > 2 ? .x2 : scope), z: -0.03, y: 0.084)
+            addScope(mb, scope == .iron ? .iron : (scope.rawValue > 2 ? .x2 : scope), z: -0.03, y: 0.084)
         case .p92:
             mb.box(g, min: V3(-0.014, 0.0, -0.17), max: V3(0.014, 0.034, 0.04), uv: met)
             mb.box(g, min: V3(-0.013, -0.02, -0.15), max: V3(0.013, 0.0, 0.03), uv: pol)
             mb.box(g, min: V3(-0.015, -0.12, -0.02), max: V3(0.015, 0, 0.035), m: mTranslate(V3(0, -0.01, 0.0)) * mRotX(-0.25), uv: pol)
             mb.box(g, min: V3(-0.004, -0.045, -0.06), max: V3(0.004, -0.02, -0.01), uv: met)
         }
-        let geo = mb.build(materials: { assets.mat($0) }) ?? SCNBox(width: 0.05, height: 0.05, length: 0.6, chamferRadius: 0)
+        let fallback: SCNGeometry = SCNBox(width: 0.05, height: 0.05, length: 0.6, chamferRadius: 0)
+        let geo: SCNGeometry = mb.build(materials: { assets.mat($0) }) ?? fallback
         cacheLock.run { gunCache[key] = geo }
         return geo
     }
@@ -296,7 +297,7 @@ enum Models {
         var geo: SCNGeometry
         switch kind {
         case .weapon(let w):
-            geo = gun(w, scope: .none, assets: assets)
+            geo = gun(w, scope: .iron, assets: assets)
         default:
             let mb = MeshBuilder()
             switch kind {
@@ -327,7 +328,8 @@ enum Models {
             default:
                 mb.box(Mt.crate.rawValue, min: V3(-0.1, 0, -0.1), max: V3(0.1, 0.2, 0.1))
             }
-            geo = mb.build(materials: { assets.mat($0) }) ?? SCNBox(width: 0.2, height: 0.2, length: 0.2, chamferRadius: 0)
+            let fallback: SCNGeometry = SCNBox(width: 0.2, height: 0.2, length: 0.2, chamferRadius: 0)
+            geo = mb.build(materials: { assets.mat($0) }) ?? fallback
         }
         cacheLock.run { lootCache[key] = geo }
         return geo
