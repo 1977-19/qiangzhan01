@@ -258,7 +258,7 @@ final class InventoryOverlay: UIView {
         let h = w.readHUD()
         var sig = ""
         for p in h.pickups { sig += "\(p.id):\(p.count)," }
-        sig += "|\(h.ammo)|\(h.meds)|\(h.throws)|\(h.scopes)|\(h.helmet)\(h.vest)\(h.bag)"
+        sig += "|\(h.ammo)|\(h.meds)|\(h.throwables)|\(h.scopes)|\(h.helmet)\(h.vest)\(h.bag)"
         for s in h.slots { sig += "|\(s.name)\(s.mag)\(s.scope)" }
         if sig == signature { return }
         signature = sig
@@ -282,8 +282,8 @@ final class InventoryOverlay: UIView {
         for m in MedType.allCases where h.meds[m.rawValue] > 0 {
             cols[1].addArrangedSubview(row("\(m.name) ×\(h.meds[m.rawValue])", color: ItemKind.med(m).tint, actions: [("使用", .med(m)), ("丢弃", .dropItem(.med(m)))]))
         }
-        for t in ThrowType.allCases where h.throws[t.rawValue] > 0 {
-            cols[1].addArrangedSubview(row("\(t.name) ×\(h.throws[t.rawValue])", color: ItemKind.throwable(t).tint, actions: [("装备", .throwSelect(t)), ("丢弃", .dropItem(.throwable(t)))]))
+        for t in ThrowType.allCases where h.throwables[t.rawValue] > 0 {
+            cols[1].addArrangedSubview(row("\(t.name) ×\(h.throwables[t.rawValue])", color: ItemKind.throwable(t).tint, actions: [("装备", .throwSelect(t)), ("丢弃", .dropItem(.throwable(t)))]))
         }
         for s in ScopeType.allCases where s != .iron && h.scopes[s.rawValue] > 0 {
             cols[1].addArrangedSubview(row("\(s.name) ×\(h.scopes[s.rawValue])", color: ItemKind.scope(s).tint, actions: [("丢弃", .dropItem(.scope(s)))]))

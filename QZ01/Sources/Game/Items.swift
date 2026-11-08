@@ -264,7 +264,7 @@ final class Inventory {
     var pistol: WeaponInst?
     var ammo = [Int](repeating: 0, count: 4)
     var meds = [Int](repeating: 0, count: 4)
-    var throws = [0, 0]
+    var throwables = [0, 0]
     var scopes = [Int](repeating: 0, count: 5)
     var helmet = 0
     var vest = 0
@@ -302,7 +302,7 @@ final class Inventory {
         switch kind {
         case .ammo(let a): return max(0, min(count, maxAmmo(a) - ammo[a.rawValue]))
         case .med(let m): return max(0, min(count, maxMed(m) - meds[m.rawValue]))
-        case .throwable(let t): return max(0, min(count, maxThrow() - throws[t.rawValue]))
+        case .throwable(let t): return max(0, min(count, maxThrow() - throwables[t.rawValue]))
         case .scope: return 1
         case .helmet, .vest, .bag, .weapon: return 1
         }
@@ -315,7 +315,7 @@ final class Inventory {
             let usedBy = [primary[0], primary[1], pistol].compactMap { $0 }.contains { $0.stats.ammo == a }
             return usedBy && ammo[a.rawValue] < maxAmmo(a)
         case .med(let m): return meds[m.rawValue] < maxMed(m)
-        case .throwable(let t): return throws[t.rawValue] < maxThrow()
+        case .throwable(let t): return throwables[t.rawValue] < maxThrow()
         case .helmet(let l): return l > helmet
         case .vest(let l): return l > vest
         case .bag(let l): return l > bag
@@ -359,7 +359,7 @@ final class Inventory {
         }
         for a in AmmoType.allCases where ammo[a.rawValue] > 0 { out.append((.ammo(a), ammo[a.rawValue], nil)) }
         for m in MedType.allCases where meds[m.rawValue] > 0 { out.append((.med(m), meds[m.rawValue], nil)) }
-        for t in ThrowType.allCases where throws[t.rawValue] > 0 { out.append((.throwable(t), throws[t.rawValue], nil)) }
+        for t in ThrowType.allCases where throwables[t.rawValue] > 0 { out.append((.throwable(t), throwables[t.rawValue], nil)) }
         for s in ScopeType.allCases where s != .iron && scopes[s.rawValue] > 0 { out.append((.scope(s), scopes[s.rawValue], nil)) }
         if helmet > 0 { out.append((.helmet(helmet), 1, nil)) }
         if vest > 0 { out.append((.vest(vest), 1, nil)) }

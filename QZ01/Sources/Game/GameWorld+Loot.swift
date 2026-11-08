@@ -177,7 +177,7 @@ extension GameWorld {
         case .throwable(let t):
             let n = inv.room(for: it.kind, count: it.count)
             if n <= 0 { picked = false; break }
-            inv.throws[t.rawValue] += n
+            inv.throwables[t.rawValue] += n
             it.count -= n
             if it.count <= 0 { removeLoot(it) }
         case .scope(let s):
@@ -223,7 +223,7 @@ extension GameWorld {
         case .med(let m):
             if inv.meds[m.rawValue] > 0 { addLoot(kind, inv.meds[m.rawValue], p); inv.meds[m.rawValue] = 0 }
         case .throwable(let t):
-            if inv.throws[t.rawValue] > 0 { addLoot(kind, inv.throws[t.rawValue], p); inv.throws[t.rawValue] = 0 }
+            if inv.throwables[t.rawValue] > 0 { addLoot(kind, inv.throwables[t.rawValue], p); inv.throwables[t.rawValue] = 0 }
         case .scope(let s):
             if inv.scopes[s.rawValue] > 0 { addLoot(kind, 1, p); inv.scopes[s.rawValue] -= 1 }
         case .helmet:
@@ -271,7 +271,7 @@ extension GameWorld {
         a.inv.pistol = nil
         a.inv.ammo = fresh.ammo
         a.inv.meds = fresh.meds
-        a.inv.throws = fresh.throws
+        a.inv.throwables = fresh.throwables
         a.inv.scopes = fresh.scopes
         a.inv.helmet = 0
         a.inv.vest = 0

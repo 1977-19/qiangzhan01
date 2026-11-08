@@ -333,7 +333,7 @@ extension GameWorld {
         }
         h.activeSlot = p.slot
         h.throwName = p.throwType.name
-        h.throwCount = p.inv.throws[p.throwType.rawValue]
+        h.throwCount = p.inv.throwables[p.throwType.rawValue]
         if let w = p.weapon {
             h.fireAuto = w.auto && w.stats.autoCapable
             h.canAuto = w.stats.autoCapable
@@ -371,7 +371,7 @@ extension GameWorld {
         h.helmetDur = p.inv.helmet > 0 ? p.inv.helmetHP / Armor.helmetDur[p.inv.helmet] : 0
         h.vestDur = p.inv.vest > 0 ? p.inv.vestHP / Armor.vestDur[p.inv.vest] : 0
         h.meds = p.inv.meds
-        h.throws = p.inv.throws
+        h.throwables = p.inv.throwables
         h.ammo = p.inv.ammo
         h.scopes = p.inv.scopes
         var spread: Float = 0

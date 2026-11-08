@@ -452,7 +452,7 @@ final class GameViewController: UIViewController {
             slots[i].isActive = h.activeSlot == i
         }
         medBtn.label.text = "\(h.meds.reduce(0, +))"
-        throwBtn.label.text = "\(h.throws.reduce(0, +))"
+        throwBtn.label.text = "\(h.throwables.reduce(0, +))"
         throwBtn.active = h.activeSlot == 3
         let tsym = h.throwName == ThrowType.smoke.name ? "cloud.fill" : "circle.circle.fill"
         if tsym != lastThrowSymbol {

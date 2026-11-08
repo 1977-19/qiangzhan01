@@ -287,8 +287,8 @@ extension GameWorld {
 
     func throwGrenade(_ a: Actor, dir: V3) {
         let t = a.throwType
-        guard a.inv.throws[t.rawValue] > 0 else { return }
-        a.inv.throws[t.rawValue] -= 1
+        guard a.inv.throwables[t.rawValue] > 0 else { return }
+        a.inv.throwables[t.rawValue] -= 1
         a.lastThrow = now
         a.throwAnimUntil = now + 0.4
         let n = SCNNode(geometry: Models.lootGeometry(.throwable(t), assets: assets))
@@ -297,9 +297,9 @@ extension GameWorld {
         fx.root.addChildNode(n)
         let v = dir * 19 + V3(0, 3.0, 0) + a.vel * 0.5
         grenades.append(Grenade(pos: p, vel: v, type: t, fuse: t == .frag ? 4.0 : 2.0, owner: a.id, node: n))
-        if a.inv.throws[t.rawValue] == 0 {
+        if a.inv.throwables[t.rawValue] == 0 {
             let other: ThrowType = t == .frag ? .smoke : .frag
-            if a.inv.throws[other.rawValue] > 0 { a.throwType = other } else { a.slot = a.inv.primary[0] != nil ? 0 : (a.inv.primary[1] != nil ? 1 : (a.inv.pistol != nil ? 2 : -1)) }
+            if a.inv.throwables[other.rawValue] > 0 { a.throwType = other } else { a.slot = a.inv.primary[0] != nil ? 0 : (a.inv.primary[1] != nil ? 1 : (a.inv.pistol != nil ? 2 : -1)) }
         }
     }
 

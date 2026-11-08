@@ -343,7 +343,7 @@ final class BotBrain {
                 }
             }
             // grenade when target hides
-            if !visibleNow && w.now - lastSeenTime < 3 && dist > 10 && dist < 32 && a.inv.throws[0] > 0 && w.now > nextGrenade && skill > 0.4 {
+            if !visibleNow && w.now - lastSeenTime < 3 && dist > 10 && dist < 32 && a.inv.throwables[0] > 0 && w.now > nextGrenade && skill > 0.4 {
                 nextGrenade = w.now + 12
                 a.throwType = .frag
                 let gd = vnorm(lastSeenPos - a.eye + V3(0, dist * 0.35, 0))

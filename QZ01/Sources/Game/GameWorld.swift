@@ -101,7 +101,7 @@ struct HUDState {
     var helmetDur: Float = 0
     var vestDur: Float = 0
     var meds = [0, 0, 0, 0]
-    var throws = [0, 0]
+    var throwables = [0, 0]
     var ammo = [0, 0, 0, 0]
     var scopes = [0, 0, 0, 0, 0]
     var spread: Float = 0
@@ -547,7 +547,7 @@ final class GameWorld {
             startHeal(p, m)
         case .throwSelect(let t):
             p.throwType = t
-            if p.inv.throws[t.rawValue] > 0 { switchSlot(p, 3) }
+            if p.inv.throwables[t.rawValue] > 0 { switchSlot(p, 3) }
         case .dropItem(let k):
             drop(p, k)
         case .dropWeapon(let s):
@@ -581,8 +581,8 @@ final class GameWorld {
     func switchSlot(_ a: Actor, _ s: Int) {
         if a.state != .ground { return }
         if s == 3 {
-            if a.inv.throws[a.throwType.rawValue] == 0 {
-                if a.inv.throws[0] > 0 { a.throwType = .frag } else if a.inv.throws[1] > 0 { a.throwType = .smoke } else { return }
+            if a.inv.throwables[a.throwType.rawValue] == 0 {
+                if a.inv.throwables[0] > 0 { a.throwType = .frag } else if a.inv.throwables[1] > 0 { a.throwType = .smoke } else { return }
             }
             a.slot = a.slot == 3 ? -1 : 3
         } else if a.inv.weapon(slot: s) != nil {
